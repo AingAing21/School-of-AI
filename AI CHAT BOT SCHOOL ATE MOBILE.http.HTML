@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Chatbot</title>
+<style>
+:root {
+  --bg-image:81625.jpg;
+  --me:#09a1ff;
+  --bot:#000000;
+  --card:#ff8c08;
+  --accent:#de5127;
+}
+*{box-sizing:border-box;font-family:"Prompt",Arial,sans-serif;margin:0;padding:0;}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background-image:url('81625.jpg');background-size:cover;background-position:center;}
+button{cursor:pointer;}
+
+/* Login */
+#loginScreen{width:100%;max-width:360px;background:var(--card);border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.1);padding:32px 24px;text-align:center;}
+#loginScreen h1{margin-bottom:24px;color:var(--accent);}
+#loginScreen input{width:100%;padding:12px;margin-bottom:16px;border-radius:8px;border:1px solid #0b3a9f;font-size:16px;}
+#loginScreen button{width:100%;padding:12px;border:none;border-radius:8px;background:var(--me);color:black;font-size:16px;}
+
+/* Dashboard */
+#dashboard{display:none;flex-direction:column;width:100%;max-width:800px;min-height:100vh;background: rgba(255,255,255,0.95);border-radius:16px;padding:20px;position:relative;}
+#menu{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;margin-bottom:20px;gap:10px;}
+.menu-btn{padding:10px 16px;border-radius:8px;border:none;font-weight:bold;background:var(--me);color:white;flex:1 1 auto; text-align:center;}
+.menu-btn:hover{background:#2563eb;}
+#content{flex:1;display:flex;flex-direction:column;gap:12px;}
+#content img{max-width:100%;border-radius:8px;}
+
+/* Chat */
+#chatContainer{display:none;flex-direction:column;width:100%;max-width:480px;height:100vh;border-radius:16px;overflow:hidden;background: var(--card);box-shadow:0 8px 25px rgba(0,0,0,0.1);}
+header{padding:12px;background:var(--accent);color:#c1b5b5;display:flex;align-items:center;gap:10px;}
+header h1{font-size:16px;margin:0;flex:1;}
+header .small{font-size:12px;color:#c9ccd0;}
+header img{height:36px;cursor:pointer;}
+.chat-window{flex:1 1 auto;overflow-y:auto;padding:10px;padding-bottom:100px;display:flex;flex-direction:column;background: linear-gradient(180deg,#f0f8ff,#ffffff);}
+.messages{display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:75%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.5;word-break:break-word;}
+.me{align-self:flex-end;background:linear-gradient(90deg,var(--me),#60a5fa);color:white;border-bottom-right-radius:4px;}
+.bot{align-self:flex-start;background:#d7d9da;color:var(--bot);border:1px solid #e5e7eb;border-bottom-left-radius:4px;}
+.bot-options button{background:var(--me);border:none;color:white;padding:6px 10px;border-radius:6px;cursor:pointer;margin:2px;}
+.input-area{display:flex;gap:4px;padding:6px;border-top:1px solid #e5e7eb;background:#f9fafb;position:fixed;bottom:0;left:0;width:100%;z-index:10;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.input-area .text{display:flex;gap:4px;flex:1;}
+.input-area input[type=text]{flex:1;padding:8px;border-radius:6px;border:1px solid #cbd5e1;font-size:14px;min-width:120px;}
+.input-area button, .input-area label{padding:6px;border-radius:6px;font-size:14px;}
+#clearBtn{background:#ef4444;}
+input[type=file]{display:none;}
+label[for=fileInput]{background:#3a65f1;color:#fff;padding:6px;border-radius:6px;border:1px solid #cbd5e1;cursor:pointer;}
+.dropzone{border:2px dashed #cbd5e1;padding:8px;border-radius:8px;text-align:center;color:#6b7280;font-size:12px;margin-bottom:8px;background:#f9fafb;}
+.image-preview{max-width:100%;border-radius:8px;display:block;margin-top:8px;border:1px solid #e5e7eb;}
+
+/* Media query มือถือ */
+@media(max-width:520px){
+  #dashboard, #chatContainer, #loginScreen{border-radius:0;max-width:100%;padding:10px;}
+  #menu{flex-direction:column;gap:6px;}
+  .menu-btn{width:100%;}
+  .input-area{padding:4px;}
+  .input-area input[type=text]{font-size:13px;}
+  .input-area button, .input-area label{font-size:12px;padding:4px 6px;}
+  header h1{font-size:14px;}
+  header img{height:30px;}
+  .chat-window{padding:6px;padding-bottom:120px;}
+}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <h1>เข้าสู่ระบบแชทบอท</h1>
+  <input type="text" id="username" placeholder="กรอกชื่อของคุณ" />
+  <button id="loginBtn">เข้าสู่ระบบ</button>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <div id="menu">
+    <img src="images.jpg" alt="โลโก้โรงเรียน" id="schoolLogo">
+    <button class="menu-btn" id="newsBtn">ประชาสัมพันธ์</button>
+    <button class="menu-btn" id="chatBtn">แชทบอท</button>
+    <button class="menu-btn" id="schoolBtn">แนะนำโรงเรียน</button>
+  </div>
+  <div id="content">
+    <h2>ยินดีต้อนรับเข้าสู่โรงเรียนของเรา</h2>
+    <p>กรุณาเลือกเมนูด้านบนเพื่อดูข้อมูล</p>
+  </div>
+</div>
+
+<!-- Chat -->
+<div id="chatContainer">
+  <header>
+    <img src="images.jpg" id="logoBack" alt="ย้อนกลับ">
+    <h1 id="userDisplay">แชตบอทโรงเรียน</h1>
+    <div class="small">ส่งข้อความและอัปโหลดรูปภาพ</div>
+  </header>
+  <main class="chat-window" id="chatWindow">
+    <div class="dropzone" id="dropzone">ลากรูปมาวาง หรือกดปุ่ม "รูปภาพ" เพื่ออัปโหลด</div>
+    <div class="messages" id="messages"></div>
+  </main>
+  <div class="input-area">
+    <div class="text">
+      <input id="textInput" type="text" placeholder="พิมพ์ข้อความ..." autocomplete="off" />
+      <label for="fileInput">รูปภาพ</label>
+      <input id="fileInput" type="file" accept="image/*" />
+    </div>
+    <button id="sendBtn">ส่ง</button>
+    <button id="clearBtn">ล้าง</button>
+  </div>
+</div>
+
+<script>
+// ===== Elements =====
+const loginScreen=document.getElementById('loginScreen');
+const dashboard=document.getElementById('dashboard');
+const chatContainer=document.getElementById('chatContainer');
+const loginBtn=document.getElementById('loginBtn');
+const usernameInput=document.getElementById('username');
+const userDisplay=document.getElementById('userDisplay');
+const messagesEl=document.getElementById('messages');
+const textInput=document.getElementById('textInput');
+const sendBtn=document.getElementById('sendBtn');
+const clearBtn=document.getElementById('clearBtn');
+const fileInput=document.getElementById('fileInput');
+const dropzone=document.getElementById('dropzone');
+const chatWindow=document.getElementById('chatWindow');
+const content=document.getElementById('content');
+const newsBtn=document.getElementById('newsBtn');
+const chatBtn=document.getElementById('chatBtn');
+const schoolBtn=document.getElementById('schoolBtn');
+const schoolLogo=document.getElementById('schoolLogo');
+const logoBack=document.getElementById('logoBack');
+
+let currentUser="";
+
+// ===== Login =====
+loginBtn.addEventListener('click',()=>{
+  const name=usernameInput.value.trim();
+  if(!name) return alert('กรุณากรอกชื่อของคุณ');
+  currentUser=name;
+  userDisplay.textContent=`${currentUser} แชตบอทโรงเรียน`;
+  loginScreen.style.display='none';
+  dashboard.style.display='flex';
+});
+
+// ===== Dashboard Menu =====
+newsBtn.addEventListener('click',()=>{
+  content.innerHTML=`
+    <h2>ประชาสัมพันธ์</h2>
+    <img src="2555.jpg" alt="ข่าวประชาสัมพันธ์">
+    <p>โรงเรียนกองทัพบกอุปถัมภ์ ช่างกล ขส.ทบ. ได้เปิดรับสมัครนักเรียน/นักศึกษาปีการศึกษา 2569 แล้ว 
+      โดยสามารถสมัครได้ตั้งแต่บัดนี้เป็นต้นไป สอบถามรายละเอียดเพิ่มเติมและสมัครได้ที่ Line ID: @581jfsdt หรือโทรศัพท์ 06 2664 1493. 
+</p>`;
+});
+schoolBtn.addEventListener('click',()=>{
+  content.innerHTML=`
+    <h2>แนะนำโรงเรียน</h2>
+    <img src="5552.jpg" alt="แนะนำโรงเรียน">
+    <p>โรงเรียนกองทัพบกอุปถัมภ์ ช่างกล ขส.ทบ. ...</p>`;
+});
+chatBtn.addEventListener('click',()=>{
+  dashboard.style.display='none';
+  chatContainer.style.display='flex';
+  messagesEl.innerHTML='';
+  showBotOptions();
+});
+logoBack.addEventListener('click',()=>{
+  chatContainer.style.display='none';
+  dashboard.style.display='flex';
+});
+// ===== คลิกโลโก้ Dashboard =====
+schoolLogo.addEventListener('click', () => {
+  content.innerHTML = `
+    <h2>ยินดีต้อนรับเข้าสู่โรงเรียนของเรา</h2>
+    <p>กรุณาเลือกเมนูด้านบนเพื่อดูข้อมูล</p>
+  `;
+});
+// ===== Bot Reply Function =====
+function botReplyForText(text){
+  text = text.trim().toLowerCase();
+  const replies = [];
+  if(!text) {
+    replies.push({ type:'text', content:"คุณยังไม่ได้พิมพ์ข้อความนะ" });
+    return replies;
+  }
+  if(text.includes('สวัสดี') || text.includes('hi')){
+    replies.push({ type:'text', content:'สวัสดีครับ! มีอะไรให้ช่วยเกี่ยวกับโรงเรียนไหมครับ?' });
+  } else if(text.includes('อาหารกลางวัน') || text.includes('เมนู')){
+    replies.push({ type:'text', content:'นี่คือเมนูอาหารกลางวันวันนี้:' });
+    replies.push({ type:'image', content:'ATE_03.jpg', alt:'เมนูอาหารกลางวัน' });
+  } else if(text.includes('แผนที่') || text.includes('แผนที่รร.')){
+    replies.push({ type:'text', content:'นี่คือแผนที่:' });
+    replies.push({ type:'image', content:'map-1-1024x777.png', alt:'แผนที่' });
+  } else if(text.includes('กิจกรรม')){
+    replies.push({ type:'text', content:'สัปดาห์นี้มีกิจกรรมกีฬาสี และวันศุกร์มีประชุมผู้ปกครองค่ะ' });
+  } else if(text.includes('เว็บไซต์')){
+    replies.push({ type:'text', content:'คลิกที่นี่เพื่อไปเว็บไซต์โรงเรียน', link:'https://ate.ac.th/' });
+  } else if(text.includes('วิดีโอ')){
+    replies.push({ type:'video', content:'https://www.youtube.com/channel/UC9pYE27LoQfnk7UYNsap3QA/videos', text:'ดูวิดีโอแนะนำโรงเรียน' });
+  } else if(text.endsWith('?')){
+    replies.push({ type:'text', content:'เป็นคำถามที่ดีค่ะ ฉันจะหาคำตอบให้เร็วที่สุดนะ' });
+  } else if(text.endsWith('วันหยุด')){
+    replies.push({ type:'text', content:'วันหยุดพฤหัสบดี1 มกราคม 2569 ...' });
+  } else {
+    replies.push({ type:'text', content:'ขอบคุณสำหรับข้อความครับ!' });
+  }
+  return replies;
+}
+
+// ===== Helper Functions =====
+function textNode(text, link=false, href=''){
+  if(link){
+    const a=document.createElement('a');
+    a.href=href; a.textContent=text; a.target='_blank'; a.style.color='blue'; a.style.textDecoration='underline';
+    return a;
+  }
+  return document.createTextNode(text);
+}
+function imageNode(src, alt=''){
+  const img=document.createElement('img'); img.src=src; img.alt=alt; img.className='image-preview'; return img;
+}
+function videoNode(src, text='วิดีโอ'){
+  const a=document.createElement('a'); a.href=src; a.target='_blank'; a.textContent=text; a.style.color='blue'; a.style.textDecoration='underline'; return a;
+}
+function appendMessage(node, type='bot'){
+  const div=document.createElement('div'); div.className='msg '+type;
+  if(node instanceof Node) div.appendChild(node);
+  else div.textContent=node;
+  messagesEl.appendChild(div);
+  scrollToBottom();
+}
+function scrollToBottom(){ chatWindow.scrollTop=chatWindow.scrollHeight; }
+
+// ===== Bot Options =====
+function botOptions(){ 
+  return [
+    {text:"ประชาสัมพันธ์",reply:"ประชาสัมพันธ์"},
+    {text:"แนะนำโรงเรียน",reply:"แนะนำโรงเรียน"},
+    {text:"เว็บไซต์โรงเรียน",reply:"เว็บไซต์"},
+    {text:"กิจกรรม",reply:"กิจกรรม"}
+  ]; 
+}
+function showBotOptions(){
+  if(document.querySelector('.msg.bot-options')) return;
+  const wrapper=document.createElement('div');
+  wrapper.className='msg bot bot-options';
+  botOptions().forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.textContent=opt.text;
+    btn.onclick=()=>{
+      appendMessage(textNode(opt.text),'me');
+      const replies=botReplyForText(opt.reply);
+      replies.forEach(reply=>{
+        if(reply.type==='text') reply.link?appendMessage(textNode(reply.content,true,reply.link),'bot'):appendMessage(textNode(reply.content),'bot');
+        if(reply.type==='image') appendMessage(imageNode(reply.content,reply.alt),'bot');
+        if(reply.type==='video') appendMessage(videoNode(reply.content,reply.text),'bot');
+      });
+      wrapper.remove();
+    };
+    wrapper.onmouseover=()=>{ btn.style.background='#2563eb'; }
+    btn.onmouseleave=()=>{ btn.style.background='#09a1ff'; }
+    wrapper.appendChild(btn);
+  });
+  messagesEl.appendChild(wrapper);
+  scrollToBottom();
+}
+
+// ===== Send Button =====
+sendBtn.addEventListener('click',()=>{
+  const text=textInput.value.trim();
+  if(!text) return;
+  appendMessage(text,'me');
+  textInput.value='';
+  const replies=botReplyForText(text);
+  replies.forEach(reply=>{
+    if(reply.type==='text') reply.link?appendMessage(textNode(reply.content,true,reply.link),'bot'):appendMessage(textNode(reply.content),'bot');
+    if(reply.type==='image') appendMessage(imageNode(reply.content,reply.alt),'bot');
+    if(reply.type==='video') appendMessage(videoNode(reply.content,reply.text),'bot');
+  });
+  showBotOptions();
+});
+
+// ===== Clear Chat =====
+clearBtn.addEventListener('click',()=>{ messagesEl.innerHTML=''; showBotOptions(); });
+
+// ===== File Upload =====
+function handleFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    appendMessage(imageNode(reader.result, file.name), 'me');
+    const fileType = file.name.split('.').pop().toUpperCase();
+    setTimeout(() => {
+      appendMessage(`ได้รับรูปภาพแล้วครับ! (นามสกุลไฟล์: ${fileType})`, 'bot');
+      showBotOptions();
+    }, 300);
+  };
+  reader.readAsDataURL(file);
+}
+fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.style.background = '#e0e7ff'; });
+dropzone.addEventListener('dragleave', e => { dropzone.style.background = '#f9fafb'; });
+dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.style.background = '#f9fafb'; handleFile(e.dataTransfer.files[0]); });
+</script>
+</body>
+</html>
